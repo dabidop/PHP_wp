@@ -1,6 +1,7 @@
 <?php
 
 session_start();
+require 'db.php'; // Conexión a la base de datos
 
 ?>
 
@@ -26,11 +27,12 @@ session_start();
             <br><br><label for="password">Password</label>
             <input type="password" name="password">
             <br><br><input type="submit" name="send" value="Iniciar sesión">
+            <input type="submit" name="register" value="Registrarse">
         </form>
     </div>
 
     <?php
-
+    /*
     $users2 = [
         "admin" => ["password" => "12345", "role" => "admin"],
         "user1" => ["password" => "contra1", "role" => "user"],
@@ -38,31 +40,40 @@ session_start();
         "user3" => ["password" => "contra3", "role" => "user"],
         "user4" => ["password" => "contra4", "role" => "user"]
     ];
-
+    */
 
     if (isset($_POST["send"])) {
         if (empty($_POST["username"]) || empty($_POST["password"])) {
             echo "Por favor, diligencie ambos campos";
         } else {
             $username = htmlspecialchars($_POST["username"]);
-            $password = htmlspecialchars($_POST["password"]);
+            $password = $_POST["password"];
 
-            if (isset($users2[$username]) && $users2[$username]["password"] === $password) {
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
+            $stmt->execute(['username' => $username]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && password_verify($password, $user['password'])) {
                 echo "Has iniciado sesión de manera exitosa";
                 $_SESSION["username"] = $username;
-                if ($users2[$username]["role"] == "admin") {
-                    header ("Location: admin.php");
+                $_SESSION["role"] = $user["role"];
+                if ($user["role"] === "admin") {
+                    header("Location: admin.php");
                     exit();
-                } elseif ($users2[$username]["role"] == "user") {
+                } elseif ($user["role"] == "user") {
                     header("Location: user.php");
                     exit();
                 }
             } else {
-                echo "Problema al iniciar sesión";
+                echo "<p style='color:red;'>Usuario o contraseña incorrectos</p>";
             }
         }
     }
 
+    if (isset($_POST["register"])) {
+        header("Location: register.php");
+    }
+    echo $_SESSION["username"];
     ?>
 </body>
 

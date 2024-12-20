@@ -1,0 +1,15 @@
+/* Ajustes para el sidebar */
+#sidebar {
+    transition: all 0.3s ease;
+}
+#sidebar.hidden {
+    margin-left: -230px;
+    /* Oculta el sidebar */
+}
+#content {
+    transition: all 0.3s ease;
+}
+#content.expanded {
+    margin-left: 0;
+    /* Expande el contenido principal */
+}
