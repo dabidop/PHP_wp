@@ -1,6 +1,7 @@
 /* Ajustes para el sidebar */
 #sidebar {
     transition: all 0.3s ease;
+    background-color: rgb(238, 136, 11);
 }
 #sidebar.hidden {
     margin-left: -230px;
@@ -10,6 +11,10 @@
     transition: all 0.3s ease;
 }
 #content.expanded {
-    margin-left: 0;
+    margin-left: 0px;
     /* Expande el contenido principal */
+}
+.acciones-col {
+    width: 10px; /* Ajusta el ancho según sea necesario */
+    text-align: center; /* Alinea el contenido al centro */
 }

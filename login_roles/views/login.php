@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-require 'db.php'; // Conexión a la base de datos
+require '../db.php'; // Conexión a la base de datos
 
 ?>
 
@@ -26,8 +26,8 @@ require 'db.php'; // Conexión a la base de datos
             <input type="text" name="username">
             <br><br><label for="password">Password</label>
             <input type="password" name="password">
-            <br><br><input type="submit" name="send" value="Iniciar sesión">
-            <input type="submit" name="register" value="Registrarse">
+            <br><br><input type="submit" name="send" value="Iniciar sesión" class="btn btn-success">
+            <input type="submit" name="register" value="Registrarse" class="btn btn-primary">
         </form>
     </div>
 
@@ -71,9 +71,9 @@ require 'db.php'; // Conexión a la base de datos
     }
 
     if (isset($_POST["register"])) {
-        header("Location: register.php");
+        header("Location: crud_users/create_user.php");
     }
-    echo $_SESSION["username"];
+    
     ?>
 </body>
 

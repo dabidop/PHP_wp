@@ -1,5 +1,5 @@
 <div class="col-md-2 bg-light p-3" id="sidebar">
-    <h6><?php echo "Bienvenido, " . $_SESSION["username"]; ?></h6>
+    <h6><?php echo $_SESSION["username"]; ?></h6>
     <ul class="nav flex-column">
         <li class="nav-item">
             <a class="nav-link active" href="admin.php">Inicio</a>
