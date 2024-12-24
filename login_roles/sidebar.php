@@ -8,7 +8,7 @@
             <a class="nav-link" href="list_users.php">Usuarios</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="register.php">Registrar Usuario</a>
+            <a class="nav-link" href="books_list.php">Libros</a>
         </li>
     </ul>
     <form method="POST">

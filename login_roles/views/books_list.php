@@ -1,14 +1,15 @@
 <?php
+
 session_start();
+
 if (!isset($_SESSION["username"]) || $_SESSION["role"] !== "admin") {
   header("Location: login.php");
-  exit();
 }
 
-require '../db.php';
+require "../db.php";
 
-// Definir cuántos usuarios se mostrarán por página
-$perPage = 5; // 5 usuarios por página
+// Definir cuántos libros se mostrarán por página
+$perPage = 5; // 5 libros por página
 
 // Obtener el número de la página actual desde la URL, por defecto será la página 1
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -16,22 +17,17 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 // Calcular el OFFSET (desde qué registro empezar)
 $offset = ($page - 1) * $perPage;
 
-// Obtener el total de usuarios para calcular el número total de páginas
-$totalUsersStmt = $pdo->query("SELECT COUNT(*) FROM users");
-$totalUsers = $totalUsersStmt->fetchColumn();
-$totalPages = ceil($totalUsers / $perPage);
-
-
-// Obtener los usuarios de la tabla
-//$stmt = $pdo->query("SELECT id, username, role, created_at FROM users");
-//$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Obtener el total de libros para calcular el número total de páginas
+$totalBooksStmt = $pdo->query("SELECT COUNT(*) FROM books");
+$totalBooks = $totalBooksStmt->fetchColumn();
+$totalPages = ceil($totalBooks / $perPage);
 
 // Obtener los usuarios para la página actual
-$stmt = $pdo->prepare("SELECT id, username, role, created_at FROM users LIMIT :limit OFFSET :offset");
+$stmt = $pdo->prepare("SELECT book_id, book_name, author, created_at FROM books LIMIT :limit OFFSET :offset");
 $stmt->bindParam(':limit', $perPage, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$books = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if (isset($_POST["logout"])) {
   session_destroy();
@@ -50,43 +46,42 @@ if (isset($_POST["logout"])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link rel="stylesheet" href="../style.css">
-  <title>Usuarios</title>
+  <title>Books</title>
 </head>
 
 <body>
   <div class="container-fluid">
     <div class="row">
       <?php include "../sidebar.php"; ?>
-
       <div id="content" class="col-md-10">
         <button id="toggleSidebar" class="btn btn-primary mb-3">☰</button>
 
         <div class="container-fluid text-center">
           <div class="row align-items-center">
             <div class="col-6">
-              <h2>Lista de Usuarios</h2>
+              <h2>Lista de libros</h2>
             </div>
             <div class="col-6">
-              <a href="./crud_users/create_user.php" class="btn btn-success btn-sm">Crear nuevo +</a>
+              <a href="./crud_books/create_book.php" class="btn btn-success btn-sm">Crear nuevo +</a>
             </div>
           </div>
           <table class="table table-striped table-bordered">
             <thead class="table-dark">
               <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Rol</th>
-                <th>Fecha registro</th>
+                <th>ID libro</th>
+                <th>Nombre libro</th>
+                <th>Autor</th>
+                <th>Fecha de registro</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($users as $user): ?>
+              <?php foreach ($books as $book): ?>
                 <tr>
-                  <td><?= htmlspecialchars($user['id']) ?></td>
-                  <td><?= htmlspecialchars($user['username']) ?></td>
-                  <td><?= htmlspecialchars($user['role']) ?></td>
-                  <td><?= htmlspecialchars($user['created_at']) ?></td>
+                  <td><?= htmlspecialchars($book['book_id']) ?></td>
+                  <td><?= htmlspecialchars($book['book_name']) ?></td>
+                  <td><?= htmlspecialchars($book['author']) ?></td>
+                  <td><?= htmlspecialchars($book['created_at']) ?></td>
                   <td>
                     <a href="crud_users/edit_user.php?id=<?= $user['id'] ?>" class="btn btn-warning btn-sm">Editar</a>
                     <a href="crud_users/delete_user.php?id=<?= $user['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</a>
@@ -122,26 +117,5 @@ if (isset($_POST["logout"])) {
     </div>
   </div>
 </body>
-
-<script>
-  // JavaScript para alternar el sidebar con persistencia
-  const sidebar = document.getElementById('sidebar');
-  const content = document.getElementById('content');
-  const toggleBtn = document.getElementById('toggleSidebar');
-
-  // Cargar el estado guardado
-  const sidebarState = localStorage.getItem('sidebarState');
-  if (sidebarState === 'hidden') {
-    sidebar.classList.add('hidden');
-    content.classList.add('expanded');
-  }
-
-  // Alternar y guardar el estado
-  toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
-    content.classList.toggle('expanded');
-    localStorage.setItem('sidebarState', sidebar.classList.contains('hidden') ? 'hidden' : 'visible');
-  });
-</script>
 
 </html>
