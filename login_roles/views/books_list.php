@@ -2,11 +2,15 @@
 
 session_start();
 
-if (!isset($_SESSION["username"]) || $_SESSION["role"] !== "admin") {
+if (!isset($_SESSION["username"])) {
   header("Location: login.php");
 }
 
 require "../db.php";
+
+// Obtener el rol del usuario desde la sesión (asumimos que está guardado como 'user_role')
+$userRole = $_SESSION["role"]; // Puede ser 'admin' o 'user'
+$userId = $_SESSION["user_id"]; // ID del usuario (asumimos que lo tienes en la sesión)
 
 // Definir cuántos libros se mostrarán por página
 $perPage = 5; // 5 libros por página
@@ -18,12 +22,47 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $perPage;
 
 // Obtener el total de libros para calcular el número total de páginas
-$totalBooksStmt = $pdo->query("SELECT COUNT(*) FROM books");
+if ($userRole === 'admin') {
+    $totalBooksStmt = $pdo->query("SELECT COUNT(*) FROM books");
+} else {
+    $totalBooksStmt = $pdo->prepare("SELECT COUNT(*) FROM books WHERE user_id = :user_id");
+    $totalBooksStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+}
+$totalBooksStmt->execute();
 $totalBooks = $totalBooksStmt->fetchColumn();
 $totalPages = ceil($totalBooks / $perPage);
 
-// Obtener los usuarios para la página actual
-$stmt = $pdo->prepare("SELECT book_id, book_name, author, created_at FROM books LIMIT :limit OFFSET :offset");
+// Obtener los libros para la página actual
+if ($userRole === 'admin') {
+    $stmt = $pdo->prepare("
+        SELECT 
+        b.book_id, 
+        b.book_name, 
+        ba.author_name, 
+        u.username AS user_name, 
+        b.created_at
+    FROM books b
+    INNER JOIN book_authors ba ON b.author = ba.author_id
+    INNER JOIN users u ON b.user_id = u.id
+    LIMIT :limit OFFSET :offset
+    ");
+} else {
+    $stmt = $pdo->prepare("
+        SELECT 
+        b.book_id, 
+        b.book_name, 
+        ba.author_name, 
+        u.username AS user_name, 
+        b.created_at
+    FROM books b
+    INNER JOIN book_authors ba ON b.author = ba.author_id
+    INNER JOIN users u ON b.user_id = u.id
+    WHERE b.user_id = :user_id
+    LIMIT :limit OFFSET :offset
+    ");
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+}
+
 $stmt->bindParam(':limit', $perPage, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
@@ -62,7 +101,7 @@ if (isset($_POST["logout"])) {
               <h2>Lista de libros</h2>
             </div>
             <div class="col-6">
-              <a href="./crud_books/create_book.php" class="btn btn-success btn-sm">Crear nuevo +</a>
+                <a href="./crud_books/create_book.php" class="btn btn-success btn-sm">Crear nuevo +</a>
             </div>
           </div>
           <table class="table table-striped table-bordered">
@@ -71,6 +110,7 @@ if (isset($_POST["logout"])) {
                 <th>ID libro</th>
                 <th>Nombre libro</th>
                 <th>Autor</th>
+                <th>Usuario</th>
                 <th>Fecha de registro</th>
                 <th>Acciones</th>
               </tr>
@@ -80,11 +120,12 @@ if (isset($_POST["logout"])) {
                 <tr>
                   <td><?= htmlspecialchars($book['book_id']) ?></td>
                   <td><?= htmlspecialchars($book['book_name']) ?></td>
-                  <td><?= htmlspecialchars($book['author']) ?></td>
+                  <td><?= htmlspecialchars($book['author_name']) ?></td>
+                  <td><?= htmlspecialchars($book['user_name']) ?></td>
                   <td><?= htmlspecialchars($book['created_at']) ?></td>
                   <td>
-                    <a href="crud_users/edit_user.php?id=<?= $user['id'] ?>" class="btn btn-warning btn-sm">Editar</a>
-                    <a href="crud_users/delete_user.php?id=<?= $user['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</a>
+                      <a href="crud_books/edit_book.php?id=<?= $book['book_id'] ?>" class="btn btn-warning btn-sm">Editar</a>
+                      <a href="crud_books/delete_book.php?id=<?= $book['book_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este libro?')">Eliminar</a>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -94,19 +135,16 @@ if (isset($_POST["logout"])) {
           <!-- Paginación -->
           <nav>
             <ul class="pagination">
-              <!-- Botón para la página anterior -->
               <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                 <a class="page-link" href="?page=<?= $page - 1 ?>" tabindex="-1">Anterior</a>
               </li>
 
-              <!-- Enlaces de páginas -->
               <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?= $i == $page ? 'active' : '' ?>">
                   <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                 </li>
               <?php endfor; ?>
 
-              <!-- Botón para la página siguiente -->
               <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
                 <a class="page-link" href="?page=<?= $page + 1 ?>">Siguiente</a>
               </li>

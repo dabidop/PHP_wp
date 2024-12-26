@@ -32,15 +32,6 @@ require '../db.php'; // Conexión a la base de datos
     </div>
 
     <?php
-    /*
-    $users2 = [
-        "admin" => ["password" => "12345", "role" => "admin"],
-        "user1" => ["password" => "contra1", "role" => "user"],
-        "user2" => ["password" => "contra2", "role" => "user"],
-        "user3" => ["password" => "contra3", "role" => "user"],
-        "user4" => ["password" => "contra4", "role" => "user"]
-    ];
-    */
 
     if (isset($_POST["send"])) {
         if (empty($_POST["username"]) || empty($_POST["password"])) {
@@ -57,6 +48,7 @@ require '../db.php'; // Conexión a la base de datos
                 echo "Has iniciado sesión de manera exitosa";
                 $_SESSION["username"] = $username;
                 $_SESSION["role"] = $user["role"];
+                $_SESSION["user_id"] = $user["id"];
                 if ($user["role"] === "admin") {
                     header("Location: admin.php");
                     exit();

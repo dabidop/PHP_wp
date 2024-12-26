@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION["username"]) || $_SESSION["role"] !== "admin") {
+if (!isset($_SESSION["username"])) {
   header("Location: login.php");
   exit();
 }
@@ -17,21 +17,16 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $perPage;
 
 // Obtener el total de usuarios para calcular el número total de páginas
-$totalUsersStmt = $pdo->query("SELECT COUNT(*) FROM users");
-$totalUsers = $totalUsersStmt->fetchColumn();
-$totalPages = ceil($totalUsers / $perPage);
-
-
-// Obtener los usuarios de la tabla
-//$stmt = $pdo->query("SELECT id, username, role, created_at FROM users");
-//$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$totalAuthorsStmt = $pdo->query("SELECT COUNT(*) FROM book_authors");
+$totalAuthors = $totalAuthorsStmt->fetchColumn();
+$totalPages = ceil($totalAuthors / $perPage);
 
 // Obtener los usuarios para la página actual
-$stmt = $pdo->prepare("SELECT id, username, role, created_at FROM users LIMIT :limit OFFSET :offset");
+$stmt = $pdo->prepare("SELECT author_id, author_name, created_at FROM book_authors LIMIT :limit OFFSET :offset");
 $stmt->bindParam(':limit', $perPage, PDO::PARAM_INT);
 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
-$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$authors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if (isset($_POST["logout"])) {
   session_destroy();
@@ -50,7 +45,7 @@ if (isset($_POST["logout"])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link rel="stylesheet" href="../style.css">
-  <title>Usuarios</title>
+  <title>Authors</title>
 </head>
 
 <body>
@@ -64,32 +59,30 @@ if (isset($_POST["logout"])) {
         <div class="container-fluid text-center">
           <div class="row align-items-center">
             <div class="col-6">
-              <h2>Lista de Usuarios</h2>
+              <h2>Lista de autores</h2>
             </div>
             <div class="col-6">
-              <a href="./crud_users/create_user.php" class="btn btn-success btn-sm">Crear nuevo +</a>
+              <a href="./crud_authors/create_author.php" class="btn btn-success btn-sm">Crear nuevo +</a>
             </div>
           </div>
           <table class="table table-striped table-bordered">
             <thead class="table-dark">
               <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Rol</th>
+                <th>ID Autor</th>
+                <th>Nombre de autor</th>
                 <th>Fecha registro</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <?php foreach ($users as $user): ?>
+              <?php foreach ($authors as $author): ?>
                 <tr>
-                  <td><?= htmlspecialchars($user['id']) ?></td>
-                  <td><?= htmlspecialchars($user['username']) ?></td>
-                  <td><?= htmlspecialchars($user['role']) ?></td>
-                  <td><?= htmlspecialchars($user['created_at']) ?></td>
+                  <td><?= htmlspecialchars($author['author_id']) ?></td>
+                  <td><?= htmlspecialchars($author['author_name']) ?></td>
+                  <td><?= htmlspecialchars($author['created_at']) ?></td>
                   <td>
-                    <a href="crud_users/edit_user.php?id=<?= $user['id'] ?>" class="btn btn-warning btn-sm">Editar</a>
-                    <a href="crud_users/delete_user.php?id=<?= $user['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</a>
+                    <a href="crud_authors/edit_author.php?id=<?= $user['id'] ?>" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="crud_authors/delete_author.php?id=<?= $user['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este autor?')">Eliminar</a>
                   </td>
                 </tr>
               <?php endforeach; ?>
