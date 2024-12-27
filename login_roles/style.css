@@ -18,6 +18,7 @@
     width: 10px; /* Ajusta el ancho según sea necesario */
     text-align: center; /* Alinea el contenido al centro */
 }
-body {
+li:hover {
+    background-color: rgb(204, 228, 228);
     
 }

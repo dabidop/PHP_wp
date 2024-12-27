@@ -20,11 +20,22 @@ require '../../db.php'; // Conexión a la base de datos
             <input type="text" name="username" required><br><br>
             <label for="password">Contraseña:</label>
             <input type="password" name="password" required><br><br>
-            <label for="role">Rol:</label>
-            <select name="role" required>
-                <option value="admin">Administrador</option>
-                <option value="user">Usuario</option>
-            </select><br><br>
+
+            <?php if (isset($_SESSION["role"]) && $_SESSION["role"] === "admin"): ?>
+                <label for="role">Rol:</label>
+                <select name="role" required>
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                </select><br><br>
+            <?php endif;
+            if (isset($_SESSION["role"]) && $_SESSION["role"] !== "admin"): ?>
+                <label for="role">Rol:</label>
+                <input type="text" value="user" name="role" disabled>
+                <br><br>
+            <?php endif;
+            if (!isset($_SESSION["role"])): ?>
+                <input name="role" type="text" value="user" hidden>
+            <?php endif; ?>
             <a href="../list_users.php" class="btn btn-sm btn-warning">Volver</a>
             <input type="submit" value="Registrar" class="btn btn-sm btn-success">
         </form>

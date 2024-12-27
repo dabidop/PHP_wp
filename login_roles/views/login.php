@@ -1,4 +1,5 @@
 <?php
+session_unset();
 
 session_start();
 require '../db.php'; // Conexión a la base de datos

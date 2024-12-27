@@ -81,8 +81,8 @@ if (isset($_POST["logout"])) {
                   <td><?= htmlspecialchars($author['author_name']) ?></td>
                   <td><?= htmlspecialchars($author['created_at']) ?></td>
                   <td>
-                    <a href="crud_authors/edit_author.php?id=<?= $user['id'] ?>" class="btn btn-warning btn-sm">Editar</a>
-                    <a href="crud_authors/delete_author.php?id=<?= $user['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este autor?')">Eliminar</a>
+                    <a href="crud_authors/edit_author.php?author_id=<?= $author['author_id'] ?>" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="crud_authors/delete_author.php?author_id=<?= $author['author_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este autor?')">Eliminar</a>
                   </td>
                 </tr>
               <?php endforeach; ?>

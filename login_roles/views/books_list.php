@@ -124,8 +124,8 @@ if (isset($_POST["logout"])) {
                   <td><?= htmlspecialchars($book['user_name']) ?></td>
                   <td><?= htmlspecialchars($book['created_at']) ?></td>
                   <td>
-                      <a href="crud_books/edit_book.php?id=<?= $book['book_id'] ?>" class="btn btn-warning btn-sm">Editar</a>
-                      <a href="crud_books/delete_book.php?id=<?= $book['book_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este libro?')">Eliminar</a>
+                      <a href="crud_books/edit_book.php?book_id=<?= $book['book_id'] ?>" class="btn btn-warning btn-sm">Editar</a>
+                      <a href="crud_books/delete_book.php?book_id=<?= $book['book_id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este libro?')">Eliminar</a>
                   </td>
                 </tr>
               <?php endforeach; ?>
